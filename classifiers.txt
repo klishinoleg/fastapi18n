@@ -1,0 +1,6 @@
+Programming Language :: Python :: 3
+Framework :: FastAPI
+Framework :: Tortoise-ORM
+Framework :: gettext
+License :: OSI Approved :: MIT License
+Operating System :: OS Independent
