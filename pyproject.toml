@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastapi18n"
-version = "0.1.0"
+version = "0.1.1"
 description = "Multilingual support middleware for FastAPI using gettext and Tortoise ORM"
 authors = [
     { name = "Oleg Klishin", email = "klishinoleg@gmail.com" }
