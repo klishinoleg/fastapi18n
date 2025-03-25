@@ -82,7 +82,7 @@ def multilangual_model(multilangual_fields: Set[str]) -> Callable:
     def set_kwargs(self, kwargs):
         """ Custom __init__ method to modify multilingual field names dynamically. """
         kwargs = change_fields(kwargs)
-        super(self.__class__, self)._set_kwargs(kwargs)
+        return super(self.__class__, self)._set_kwargs(kwargs)
 
     def modify_field_object_to_not_db(field_object):
         class NoDbClass(field_object.__class__):
