@@ -1,3 +1,4 @@
+import types
 from typing import Callable, Set
 from ..wrappers import TranslationWrapper
 from copy import deepcopy
@@ -74,15 +75,18 @@ def multilangual_model(multilangual_fields: Set[str]) -> Callable:
 
         return get_property
 
-    def change_fields(data: dict) -> dict:
-        locale = get_locale()
-        lang_fields = multilangual_fields
-        return {f"{key}_{locale}" if key in lang_fields else key: val for key, val in data.items()}
+    def kwargs_wrapper(original_method: Callable) -> Callable:
+        def change_fields(data: dict) -> dict:
+            locale = get_locale()
+            lang_fields = multilangual_fields
+            return {f"{key}_{locale}" if key in lang_fields else key: val for key, val in data.items()}
 
-    def set_kwargs(self, kwargs):
-        """ Custom __init__ method to modify multilingual field names dynamically. """
-        kwargs = change_fields(kwargs)
-        return super(self.__class__, self)._set_kwargs(kwargs)
+        def set_kwargs(self, kwargs):
+            """ Custom __init__ method to modify multilingual field names dynamically. """
+            kwargs = change_fields(kwargs)
+            return original_method(self, kwargs)
+
+        return set_kwargs
 
     def modify_field_object_to_not_db(field_object):
         class NoDbClass(field_object.__class__):
@@ -96,9 +100,6 @@ def multilangual_model(multilangual_fields: Set[str]) -> Callable:
         new_fiels_object.source_field = source_field
         new_fiels_object.null = new_fiels_object.null or not is_first_lang
         return new_fiels_object
-
-    async def update(cls, *args, **kwargs):
-        await super(cls).update(*args, **kwargs)
 
     def wrapper(cls):
         """
@@ -144,9 +145,36 @@ def multilangual_model(multilangual_fields: Set[str]) -> Callable:
             del cls._meta.fields_db_projection[field_name]
             # Create getter and setter properties for the base field name
             setattr(cls, field_name, property(get_get_property(field_name), get_set_property(field_name)))
-        setattr(cls, "_set_kwargs", set_kwargs)
-        setattr(cls, "update", classmethod(update))
+
+        setattr(cls, "_set_kwargs", kwargs_wrapper(copy_method(cls, "_set_kwargs")))
 
         return cls  # Return the modified class
 
     return wrapper
+
+
+def copy_method(cls, method_name):
+    """
+    Creates a copy of a class method by its name.
+
+    :param cls: The class containing the method
+    :param method_name: The name of the method to copy
+    :return: A new method (copied)
+    """
+    if not hasattr(cls, method_name):
+        raise AttributeError(f"Method '{method_name}' not found in class {cls.__name__}")
+
+    method = getattr(cls, method_name)
+    if not callable(method):
+        raise TypeError(f"'{method_name}' is not a callable method in class {cls.__name__}")
+
+    # Create a new function based on the method
+    new_method = types.FunctionType(
+        method.__code__,  # Original method code
+        method.__globals__,  # Use original global variables
+        name=method.__name__,  # Retain original method name
+        argdefs=method.__defaults__,  # Set default arguments
+        closure=method.__closure__  # Pass closures if any
+    )
+
+    return new_method

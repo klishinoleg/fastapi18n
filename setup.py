@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="fastapi18n",
-    version="0.1.1",
+    version="0.1.2",
     author="Klishin Oleg",
     author_email="klishinoleg@gmail.com",
     description="Multilingual support middleware for FastAPI using gettext with support Tortoise ORM models",
