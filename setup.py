@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="fastapi18n",
-    version="0.1.2",
+    version="0.1.3",
     author="Klishin Oleg",
     author_email="klishinoleg@gmail.com",
     description="Multilingual support middleware for FastAPI using gettext with support Tortoise ORM models",
@@ -11,12 +11,16 @@ setup(
     url="https://github.com/klishinoleg/fastapi18n",
     packages=find_packages(),
     install_requires=[
-        "google-cloud-translate==3.20.2",
-        "typing_extensions~=4.12.2",
-        "starlette~=0.46.1",
-        "python-dotenv==1.0.1",
-        "Babel==2.16.0",
+        "google-cloud-translate",
+        "typing_extensions",
+        "starlette",
+        "python-dotenv",
+        "Babel",
         "contextvars",
+        "tortoise-orm==0.24.2",
+        "aerich",
+        "fastapi",
+        "fastapi-admin",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
